@@ -1,6 +1,6 @@
-# Requirements — v1
+# Requirements — v2
 
-- Status: Draft (v1)
+- Status: Draft (v2)
 - Date: 2026-10-16
 - Related: ADR-0001 (repository structure)
 
@@ -77,4 +77,11 @@ A vet account moves through these states:
 ## 5. Open questions
 
 - What should the app show or do for an Emergency case, when no vet may reply in time?
-- Non-functional requirements (speed, low-bandwidth users, availability, privacy): to be added in v2.
+
+## 6. Non-functional requirements
+
+| ID    | Requirement                                                                                                         | → Which means                                                                               |
+| ----- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| NFR-1 | A help post with one photo reaches the server within 30 s on 3G and is not lost if the connection drops             | Compress images on the device, send text before photo, offline queue with retry (IndexedDB) |
+| NFR-2 | If the AI assistant is down, vet chat and help posts keep working                                                   | Timeouts on all Node → RAG calls, friendly fallback message pointing to help posts          |
+| NFR-3 | Only a consultation's participants (caregiver, current/past non-suspended vets) can view it; admin access is logged | Authorization check on every consultation endpoint, not just login                          |
