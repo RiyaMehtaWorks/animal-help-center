@@ -147,3 +147,15 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+
+# --- Python (rag/) ---
+# compiled Python files, regenerated automatically
+__pycache__/
+*.py[cod]
+# virtual environments: installed packages (huge, machine-specific)
+.venv/
+venv/
+# test runner and type checker caches
+.pytest_cache/
+.mypy_cache/
