@@ -16,9 +16,6 @@ export class AnimalController {
 
   getById = async (req: Request<{ id: string }>, res: Response) => {
     const animal = await this.service.getAnimal(req.params.id);
-    if (!animal) {
-      return res.status(404).json({ msg: "Animal Not Found" });
-    }
     res.status(200).json(animal);
   };
 }
