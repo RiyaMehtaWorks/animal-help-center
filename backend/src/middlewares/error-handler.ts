@@ -12,7 +12,5 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
   // Anything else is a real bug: log it for us, hide the details from the client
   console.error(err);
-  res
-    .status(err.statusCode)
-    .json({ error: { message: "Something went wrong" } });
+  res.status(500).json({ error: { message: "Something went wrong" } });
 };
