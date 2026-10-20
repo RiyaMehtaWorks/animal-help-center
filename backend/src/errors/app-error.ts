@@ -5,7 +5,7 @@ export class AppError extends Error {
     message: string,
     public readonly details?: unknown,
   ) {
-    super(message); // hint: pass the message up to the built-in Error
+    super(message);
     this.name = new.target.name;
   }
 }
