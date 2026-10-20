@@ -1,5 +1,6 @@
 import type { Animal, NewAnimal } from "../types/animal.types.js";
 import type { AnimalRepository } from "../interfaces/animal-repository.interface.js";
+import { NotFoundError } from "../errors/app-error.js";
 
 export class AnimalService {
   constructor(private readonly animals: AnimalRepository) {}
@@ -12,8 +13,12 @@ export class AnimalService {
     };
     return this.animals.create(cleaned);
   }
-  async getAnimal(id: string): Promise<Animal | null> {
-    return this.animals.findById(id);
+  async getAnimal(id: string): Promise<Animal> {
+    const animal = await this.animals.findById(id);
+    if (!animal) {
+      throw new NotFoundError("Animal");
+    }
+    return animal;
   }
   async listAnimals(): Promise<Animal[]> {
     return this.animals.list();
