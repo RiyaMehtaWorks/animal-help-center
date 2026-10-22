@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Animal } from "./types/animal";
 import { listAnimals } from "./api/animals";
+import { AddAnimalForm } from "./components/AddAnimalForm";
 
 export default function App() {
   const [animals, setAnimals] = useState<Animal[]>([]);
@@ -20,6 +21,9 @@ export default function App() {
   return (
     <main>
       <h1>🐾 Animal Help Center</h1>
+      <AddAnimalForm
+        onCreated={(animal) => setAnimals((prev) => [animal, ...prev])}
+      />
       {animals.length === 0 ? (
         <p>No animals yet.</p>
       ) : (

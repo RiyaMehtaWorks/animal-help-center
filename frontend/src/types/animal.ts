@@ -6,3 +6,5 @@ export type Animal = {
   caregiverIds: string[];
   createdAt: string; // 🤔 see below
 };
+
+export type NewAnimal = Omit<Animal, "id" | "createdAt">; // same idea as the backend
