@@ -17,7 +17,7 @@ class EnvVariables {
   PORT: number = 4000; // default when not set
 
   @IsUrl({ require_tld: false, require_protocol: true })
-  CORS_ORIGIN: string = "http://localhost:5173/"; // the frontend's dev URL
+  CORS_ORIGIN: string = "http://localhost:5173"; // the frontend's dev URL
 }
 
 function loadConfig() {
