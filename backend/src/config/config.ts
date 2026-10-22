@@ -1,5 +1,5 @@
 import { plainToInstance, Transform } from "class-transformer";
-import { IsIn, IsInt, Max, Min, validateSync } from "class-validator";
+import { IsIn, IsInt, IsUrl, Max, Min, validateSync } from "class-validator";
 
 const NODE_ENVS = ["development", "test", "production"] as const;
 
@@ -15,6 +15,9 @@ class EnvVariables {
   @Min(1)
   @Max(65535) // highest valid port number
   PORT: number = 4000; // default when not set
+
+  @IsUrl({ require_tld: false, require_protocol: true })
+  CORS_ORIGIN: string = "http://localhost:5173"; // the frontend's dev URL
 }
 
 function loadConfig() {
@@ -30,7 +33,7 @@ function loadConfig() {
   }
 
   // Export friendly camelCase names, not raw ENV_NAMES
-  return { nodeEnv: env.NODE_ENV, port: env.PORT };
+  return { nodeEnv: env.NODE_ENV, port: env.PORT, corsOrigin: env.CORS_ORIGIN };
 }
 
 export const config = loadConfig();
