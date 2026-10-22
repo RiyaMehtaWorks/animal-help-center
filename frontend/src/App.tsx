@@ -4,7 +4,7 @@ import { listAnimals } from "./api/animals";
 
 export default function App() {
   const [animals, setAnimals] = useState<Animal[]>([]);
-  const [loading, setLoading] = useState(false); // are we loading at the start?
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export default function App() {
       .then(setAnimals)
       .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false));
-  }, []); // [] = run once, when the page opens
+  }, []);
 
   if (loading) return <p>Loading animals…</p>;
   if (error) return <p role="alert">⚠️ {error}</p>;
