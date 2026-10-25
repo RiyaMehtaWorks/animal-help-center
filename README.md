@@ -17,6 +17,7 @@ An app where a caregiver of an animal, be it pet, or a rescue, can connect with 
 - [Data model](docs/data-model/README.md)
 - [Architecture](docs/architecture/README.md)
 - [ADR-0001: Repository structure](docs/adr/0001-repository-structure.md)
+- [Backend](docs/backend/README.md)
 
 ## Status
 
