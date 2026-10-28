@@ -1,0 +1,16 @@
+# .dockerignore: files and folders NOT sent to Docker when building the frontend.
+
+# Local dependencies: built for macOS. The image installs its own Linux ones.
+node_modules
+
+# Old local build output. The image builds a fresh one.
+dist
+
+# Local env files: Vite would read them during `vite build` and bake their
+# values into the JavaScript. In Docker, the API URL comes ONLY from the
+# VITE_API_URL build argument, so there's one clear source of truth.
+.env
+.env.*
+
+# Log files
+*.log
