@@ -1,0 +1,111 @@
+# =============================================================================
+# compose.yaml: runs the whole AnimalHelpCenter app with ONE command.
+#
+#   docker compose up --build     build what's needed + start everything
+#   docker compose ps             see each service's status (healthy?)
+#   docker compose logs -f        follow the logs of all services
+#   docker compose down           stop and remove the containers
+#
+# All services share a private network and can reach each other by
+# SERVICE NAME (e.g. the backend can call http://rag:8000).
+# The browser is OUTSIDE that network: it only sees the ports published
+# on localhost (the "ports:" entries).
+# =============================================================================
+
+# Project name: prefixes container names (e.g. animal-help-center-backend-1).
+name: animal-help-center
+
+services:
+  # ---------------------------------------------------------------------------
+  # RAG service (Python + FastAPI)
+  # ---------------------------------------------------------------------------
+  rag:
+    # Build the image from rag/Dockerfile (same as `docker build ./rag`).
+    build:
+      context: ./rag
+    # Publish container port 8000 on localhost:8000 (host:container).
+    # Handy for opening /docs in the browser while developing.
+    ports:
+      - "8000:8000"
+    # Healthcheck: Docker runs this command INSIDE the container on a schedule.
+    # Exit code 0 = healthy, anything else = unhealthy.
+    # The slim image has no curl, so we use Python's built-in urllib.
+    # 127.0.0.1 = "this same container".
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request, sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health').status == 200 else 1)",
+        ]
+      # how often to check
+      interval: 10s
+      # a check slower than this counts as a failure
+      timeout: 3s
+      # failures in a row before the container is marked "unhealthy"
+      retries: 3
+      # grace period after start: failures here don't count yet
+      start_period: 10s
+    # If the container crashes, start it again (but not after you stop it).
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Backend API (Node + Express)
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "4000:4000"
+    # Runtime configuration, read by backend/src/config/config.ts
+    # (same as `docker run -e ...`). No .env file is used here.
+    environment:
+      NODE_ENV: production
+      # quoted so YAML passes it as text, like all env vars
+      PORT: "4000"
+      # must match the URL the BROWSER uses for the frontend (see ports below)
+      CORS_ORIGIN: http://localhost:5173
+    # The slim Node image has no curl, so use Node's built-in fetch.
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Frontend (React build served by nginx)
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      # Build-time arguments (same as `docker build --build-arg ...`).
+      # Baked into the JavaScript during `vite build`.
+      # localhost, NOT http://backend:4000, because this URL is used by the
+      # BROWSER, which is outside the compose network.
+      args:
+        VITE_API_URL: http://localhost:4000
+    # Browser sees localhost:5173 → nginx listens on 8080 inside the container.
+    ports:
+      - "5173:8080"
+    # Start the frontend only after the backend reports "healthy".
+    # Without a condition, depends_on only waits for the container to START,
+    # not for the app inside it to be READY.
+    depends_on:
+      backend:
+        condition: service_healthy
+    # nginx's Alpine image includes a small wget; --spider = just check, don't download.
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
